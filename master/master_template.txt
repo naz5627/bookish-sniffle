@@ -1,0 +1,61 @@
+
+#define ledon 1
+#define ledoff 0
+#define devices_available 5
+
+uint8 a;
+uint8 listening = false;
+
+enum led_state
+{
+self_off
+self_on
+other_on
+};
+
+void initialize()
+{
+a = random(devices_available);
+}
+
+main()
+{
+if(led_state != self_on)
+{
+	if(listening != true)
+	{
+		if a == 0
+		{
+		led on();
+		listening= false;
+                led_state = self_on;
+		}
+		else
+		{
+		message(a);
+		listening= true;
+		}
+	}
+	else
+	{
+	nrf24listening();
+	}
+}
+else
+{
+	touched = ir_reading();
+	if(touched == true)
+	{
+	led_state = self_off;
+	led off();
+	a = random(devices_available);
+	}
+}
+}
+
+void function message(uint8 a)
+{
+message = a & ledon;
+nrf24send(message);
+led_state = other_on;
+}
