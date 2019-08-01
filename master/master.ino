@@ -12,6 +12,8 @@ const uint8_t this_node = 0;   // Address of this node in Octal format ( 04,031,
 const uint8_t node01 = 1;      // Address of the other node in Octal format
 const uint8_t node02 = 2;
 
+int statLED;    //LED current status ON or OFF
+
 void setup() 
 {
   Serial.begin(9600);
@@ -22,6 +24,9 @@ void setup()
   
   pinMode(IR, INPUT);
   pinMode(led, OUTPUT);
+
+  digitalWrite(led, HIGH);
+  statLED = 1;
 }
 
 void loop() 
@@ -36,58 +41,62 @@ void loop()
     int incomingData;
     network.read(header, &incomingData, sizeof(incomingData)); // Read the incoming data
     digitalWrite(led, incomingData); 
+
+    statLED = incomingData;   //set LED status as incomingData
     
-    delay(100);
+    delay(100);   
   }
 
   //===== Sending =====//
   int potValue = digitalRead(5);
    
-  if (digitalRead(5) == HIGH)
+  if (statLED != 1)
   {
- 
+    //do nothing
   }
-  else
+  else if ((digitalRead(5) == LOW) && (statLED = 1))
   {
-    int x =1;
-
-    int z = random(1000);
-    Serial.println(z);
+    int randNum = random(1000);
+    Serial.println(randNum);
       
-    if (z <= 500)
+    if (randNum <= 500)
     {
-      int y = 1;    
-      int off = 2;
+      int receivingAddress = 1;    
+      int receivingAddressOFF = 2;
 
-      int ledBrightness = x;
-      RF24NetworkHeader header(y);   // (Address where the data is going)
+      int ledBrightness = 1;
+      RF24NetworkHeader header(receivingAddress);   // (Address where the data is going)
       bool ok = network.write(header, &ledBrightness, sizeof(ledBrightness)); // Send the data
       delay(30);
          
-      int Brightness =0;
-      RF24NetworkHeader header1(off);   // (Address where the data is going)
+      int Brightness = 0;
+      RF24NetworkHeader header1(receivingAddressOFF);   // (Address where the data is going)
       bool ok1 = network.write(header1, &Brightness, sizeof(ledBrightness)); // Send the data    
       delay(30);
 
       digitalWrite(led, LOW);
+      statLED = 0;
     }
-        
         
     else
     {
-      int y = 2;
-      int off = 1;
-      int ledBrightness = x;
-      RF24NetworkHeader header(y);   // (Address where the data is going)
+      int receivingAddress = 2;
+      int receivingAddressOFF = 1;
+      
+      int ledBrightness = 1;
+      RF24NetworkHeader header(receivingAddress);   // (Address where the data is going)
       bool ok = network.write(header, &ledBrightness, sizeof(ledBrightness)); // Send the data
       delay(30);
       
-      int Brightness =0;
-      RF24NetworkHeader header1(off);   // (Address where the data is going)
+      int Brightness = 0;
+      RF24NetworkHeader header1(receivingAddressOFF);   // (Address where the data is going)
       bool ok1 = network.write(header1, &Brightness, sizeof(ledBrightness)); // Send the data     
       delay(30);
 
       digitalWrite(led, LOW);
+      statLED = 0;
     }
  }  
+
+ Serial.println(statLED);   //check LED status
 }
